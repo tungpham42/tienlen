@@ -1,0 +1,430 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap");
+
+* {
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+  box-sizing: border-box;
+}
+
+/* --- FLUID RESPONSIVE VARIABLES --- */
+:root {
+  --card-h: clamp(45px, min(16vh, 13vw), 95px);
+  --card-w: calc(var(--card-h) * 0.714);
+
+  --bot-shift-x: calc(var(--card-w) * -0.65);
+  --bot-shift-y: calc(var(--card-h) * -0.75);
+
+  --player-shift-x: calc(var(--card-w) * -0.55);
+  --card-lift: calc(var(--card-h) * -0.45);
+
+  --font-scale: calc(var(--card-h) / 90);
+
+  /* Casino Theme Colors */
+  --casino-green-dark: #0a2e1c;
+  --casino-green-light: #165c38;
+  --casino-gold: #d4af37;
+  --casino-gold-light: #f3e5ab;
+  --casino-red: #8b0000;
+}
+
+/* --- CARD STYLES --- */
+.playing-card {
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: calc(var(--card-w) * 0.1);
+}
+
+.card-corner {
+  position: absolute;
+  text-align: center;
+  line-height: 1;
+}
+
+.card-corner-top {
+  top: calc(var(--card-h) * 0.05);
+  left: calc(var(--card-w) * 0.08);
+}
+
+.card-corner-bottom {
+  bottom: calc(var(--card-h) * 0.05);
+  right: calc(var(--card-w) * 0.08);
+  transform: rotate(180deg);
+}
+
+.card-rank {
+  font-size: calc(18px * var(--font-scale));
+  font-weight: 800;
+}
+
+.card-suit-small {
+  width: calc(14px * var(--font-scale));
+  height: calc(14px * var(--font-scale));
+}
+
+.card-suit-large {
+  width: calc(80px * var(--font-scale));
+  height: calc(80px * var(--font-scale));
+}
+
+.card-rank-center {
+  z-index: 1;
+  font-size: calc(30px * var(--font-scale));
+  font-weight: 900;
+}
+
+/* --- LAYOUT STYLES (Casino Theme) --- */
+.game-layout {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  background: radial-gradient(
+    ellipse at center,
+    var(--casino-green-light) 0%,
+    var(--casino-green-dark) 100%
+  );
+  position: relative;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.game-layout::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ant-layout-header,
+.ant-layout-content,
+.ant-layout-footer {
+  z-index: 1;
+}
+
+.center-arena {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1100px;
+  flex: 1;
+  padding: 0 2vw;
+  margin: 0 auto;
+  min-height: 0;
+}
+
+.table-zone {
+  flex: 1;
+  max-width: 450px;
+  height: clamp(80px, 20vh, 150px);
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 100px;
+  border: 2px dashed rgba(212, 175, 55, 0.4);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 2vw;
+  min-width: 0;
+  position: relative;
+}
+
+.table-zone::before {
+  content: "TIẾN LÊN";
+  position: absolute;
+  font-size: clamp(20px, 4vw, 40px);
+  font-weight: 900;
+  letter-spacing: 5px;
+  color: rgba(212, 175, 55, 0.1);
+  pointer-events: none;
+}
+
+/* --- PLAYER AREAS --- */
+.bot-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 15px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.bot-area.active-turn {
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid var(--casino-gold);
+  box-shadow:
+    0 0 20px rgba(212, 175, 55, 0.3),
+    inset 0 0 10px rgba(212, 175, 55, 0.2);
+}
+
+.bot-area-vertical {
+  flex-direction: column;
+  padding: 15px 10px;
+}
+
+.bot-area-horizontal {
+  flex-direction: row;
+  justify-content: center;
+  margin: min(2vh, 10px) auto;
+  padding: 10px 20px;
+}
+
+.bot-avatar {
+  width: calc(36px + 16px * var(--font-scale)) !important;
+  height: calc(36px + 16px * var(--font-scale)) !important;
+  line-height: calc(36px + 16px * var(--font-scale)) !important;
+  font-size: calc(18px * var(--font-scale));
+  border: 2px solid var(--casino-gold) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.active-avatar {
+  border-color: #fff !important;
+  box-shadow: 0 0 15px var(--casino-gold) !important;
+}
+
+.bot-name {
+  color: var(--casino-gold-light);
+  font-weight: 800;
+  font-size: calc(12px * var(--font-scale) + 2px);
+  text-align: center;
+  text-shadow: 1px 1px 3px #000;
+  letter-spacing: 0.5px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.player-dashboard-area {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px 10px;
+  width: 100%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+}
+
+.hand-container {
+  display: flex;
+  justify-content: center;
+  height: calc(var(--card-h) + (var(--card-lift) * -1));
+  align-items: flex-end;
+  margin: clamp(5px, 1.5vh, 15px) 0;
+  padding: 10px 20px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+}
+
+/* ========================================================= */
+/* --- CASINO BUTTON STYLES (Luxurious Gold & Crimson) ---   */
+/* ========================================================= */
+.btn-action {
+  border: 2px solid transparent;
+  border-radius: 50px;
+  padding: clamp(10px, 2vh, 16px) clamp(20px, 4vw, 40px);
+  font-size: clamp(14px, 2vh, 18px);
+  font-weight: 900;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  position: relative;
+  outline: none;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+}
+
+.btn-action:disabled {
+  filter: grayscale(100%) brightness(0.5);
+  cursor: not-allowed;
+  transform: translateY(4px) !important;
+  box-shadow: 0 2px #111 !important;
+}
+
+.btn-play {
+  background-image:
+    linear-gradient(135deg, #a60000, #ff1a1a, #800000),
+    linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7);
+  box-shadow:
+    0 6px #590000,
+    0 10px 20px rgba(0, 0, 0, 0.6),
+    inset 0 2px 5px rgba(255, 255, 255, 0.3);
+  color: #fff2cc;
+}
+.btn-play:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px #590000,
+    0 15px 25px rgba(0, 0, 0, 0.7),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5);
+  filter: brightness(1.1);
+}
+.btn-play:not(:disabled):active {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px #590000,
+    0 5px 10px rgba(0, 0, 0, 0.6);
+}
+
+.btn-start {
+  background-image:
+    linear-gradient(135deg, #1a1a1a, #333333, #0d0d0d),
+    linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7);
+  box-shadow:
+    0 6px #000000,
+    0 10px 20px rgba(0, 0, 0, 0.6),
+    inset 0 2px 5px rgba(255, 255, 255, 0.1);
+  color: #fff2cc;
+}
+.btn-start:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px #000000,
+    0 15px 25px rgba(0, 0, 0, 0.7),
+    inset 0 2px 5px rgba(255, 255, 255, 0.3);
+  filter: brightness(1.2);
+}
+.btn-start:not(:disabled):active {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px #000000,
+    0 5px 10px rgba(0, 0, 0, 0.6);
+}
+
+.btn-pass {
+  background-image:
+    linear-gradient(135deg, #4d4d4d, #737373, #333333),
+    linear-gradient(135deg, #8c8c8c, #cccccc, #737373, #e6e6e6);
+  box-shadow:
+    0 6px #1a1a1a,
+    0 10px 15px rgba(0, 0, 0, 0.5);
+  color: #e6e6e6;
+}
+.btn-pass:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px #1a1a1a,
+    0 12px 20px rgba(0, 0, 0, 0.6);
+}
+.btn-pass:not(:disabled):active {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px #1a1a1a,
+    0 5px 10px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes pulse-glow-gold {
+  0% {
+    box-shadow:
+      0 6px #590000,
+      0 0 0 0 rgba(252, 246, 186, 0.8);
+  }
+  70% {
+    box-shadow:
+      0 6px #590000,
+      0 0 0 15px rgba(252, 246, 186, 0);
+  }
+  100% {
+    box-shadow:
+      0 6px #590000,
+      0 0 0 0 rgba(252, 246, 186, 0);
+  }
+}
+
+@keyframes pulse-glow-gold-start {
+  0% {
+    box-shadow:
+      0 6px #000000,
+      0 0 0 0 rgba(252, 246, 186, 0.8);
+  }
+  70% {
+    box-shadow:
+      0 6px #000000,
+      0 0 0 15px rgba(252, 246, 186, 0);
+  }
+  100% {
+    box-shadow:
+      0 6px #000000,
+      0 0 0 0 rgba(252, 246, 186, 0);
+  }
+}
+
+.btn-play.is-ready:not(:active) {
+  animation: pulse-glow-gold 1.5s infinite;
+}
+
+.btn-start.is-ready:not(:active) {
+  animation: pulse-glow-gold-start 1.5s infinite;
+}
+
+.ant-badge-count {
+  background: var(--casino-red) !important;
+  border: 1px solid var(--casino-gold) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  font-weight: bold;
+}
+
+/* ========================================================= */
+/* --- ANTD MESSAGE CASINO THEME OVERRIDES ---               */
+/* ========================================================= */
+.ant-message-notice-content {
+  background: linear-gradient(135deg, #111111, #2a2a2a) !important;
+  border: 2px solid var(--casino-gold) !important;
+  border-radius: 50px !important;
+  padding: 12px 28px !important;
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.8),
+    0 0 15px rgba(212, 175, 55, 0.4) !important;
+}
+
+.ant-message-custom-content {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.ant-message-custom-content span {
+  color: var(--casino-gold-light) !important;
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.ant-message-error.ant-message-custom-content span {
+  color: #ff6b6b !important;
+}
+
+.ant-message-custom-content .anticon {
+  font-size: 22px !important;
+}
+
+.ant-message-success .anticon {
+  color: var(--casino-gold) !important;
+  filter: drop-shadow(0 0 6px var(--casino-gold));
+}
+
+.ant-message-error .anticon {
+  color: #ff4d4f !important;
+  filter: drop-shadow(0 0 6px #ff4d4f);
+}
+
+.ant-message-info .anticon {
+  color: #1890ff !important;
+  filter: drop-shadow(0 0 6px #1890ff);
+}
